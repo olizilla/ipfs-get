@@ -1,0 +1,30 @@
+{
+  "name": "ipfs-get",
+  "description": "_Get and verify a file by CID from an IPFS gateway over http._",
+  "version": "0.0.0",
+  "type": "module",
+  "main": "index.js",
+  "bin": {
+    "ipfs-get": "index.js"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "test": "say sorry"
+  },
+  "author": "olizilla",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^4.2.4"
+  },
+  "dependencies": {
+    "@ipld/car": "^1.0.1",
+    "@ipld/dag-pb": "^1.1.0",
+    "ipfs-unixfs-exporter": "^5.0.3",
+    "isomorphic-unfetch": "^3.1.0",
+    "it-pipe": "^1.1.0",
+    "meow": "^10.0.0",
+    "multiformats": "^7.0.0",
+    "stream-to-it": "^0.2.3",
+    "streaming-iterables": "^5.0.4"
+  }
+}
