@@ -19,8 +19,7 @@
   },
   "dependencies": {
     "@ipld/car": "^1.0.1",
-    "@ipld/dag-pb": "^1.1.0",
-    "ipfs-unixfs-exporter": "^5.0.3",
+    "ipfs-unixfs-exporter": "https://gitpkg.now.sh/ipfs/js-ipfs-unixfs/packages/ipfs-unixfs-exporter?js-dag-pb",
     "isomorphic-unfetch": "^3.1.0",
     "it-pipe": "^1.1.0",
     "meow": "^10.0.0",

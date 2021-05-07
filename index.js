@@ -3,8 +3,6 @@ import fs from 'fs'
 import meow from 'meow'
 import fetch from 'isomorphic-unfetch'
 import { bytes } from 'multiformats'
-import * as dagPb from '@ipld/dag-pb'
-import * as raw from 'multiformats/codecs/raw'
 import { sha256 } from 'multiformats/hashes/sha2'
 import { CarReader } from '@ipld/car'
 import exporter from 'ipfs-unixfs-exporter'
@@ -12,11 +10,6 @@ import toIterable from 'stream-to-it'
 import { pipe } from 'it-pipe'
 
 const { toHex } = bytes
-
-const codecs = {
-  [dagPb.code]: dagPb,
-  [raw.code]: raw
-}
 
 const hashes = {
   [sha256.code]: sha256
@@ -54,40 +47,42 @@ async function ipfsGet ({ cid, gateway, output }) {
   const carReader = await CarReader.fromIterable(carStream)
 
   let count = 0
-  const verifyingIpldAdaptor = {
+  const verifyingBlockService = {
     get: async (cid) => {
       const res = await carReader.get(cid)
       if (!isValid(res)) {
         throw new Error(`Bad block. Hash does not match CID ${cid}`)
       }
-      const obj = decode(res)
       count++
-      return obj
+      return res
     }
   }
 
-  await extractCar({ cid, ipld: verifyingIpldAdaptor, output })
+  await extractCar({ cid, blockService: verifyingBlockService, output })
   console.log(`🔐 Verified ${count}/${count} block${count === 1 ? '' : 's'}`)
   console.log(`✅ Wrote ${output || cid}`)
 }
 
-async function extractCar ({ cid, ipld, output }) {
-  const depth = 0
+async function extractCar ({ cid, blockService, output }) {
   // magic extracted from js-ipfs:
   // https://github.com/ipfs/js-ipfs/blob/46618c795bf5363ba3186645640fb81349231db7/packages/ipfs-core/src/components/get.js#L20
   // https://github.com/ipfs/js-ipfs/blob/46618c795bf5363ba3186645640fb81349231db7/packages/ipfs-cli/src/commands/get.js#L56-L66
-  for await (const file of exporter.recursive(cid, ipld, { /* options */ })) {
-    // output overides the first part of the path.
-    const filePath = depth === 0 ? output || file.path : file.path
-    if (file.type === 'file' || file.type === 'raw') {
-      // await fs.promises.mkdir(fullFilePath), { recursive: true })
+  for await (const file of exporter.recursive(cid, blockService, { /* options */ })) {
+    let filePath = file.path
+    // output overrides the first part of the path.
+    if (output) {
+      const parts = file.path.split('/')
+      parts[0] = output
+      filePath = parts.join('/')
+    }
+    console.log(filePath, file)
+    if (file.type === 'directory') {
+      await fs.promises.mkdir(filePath, { recursive: true })
+    } else {
       await pipe(
         file.content,
         toIterable.sink(fs.createWriteStream(filePath))
       )
-    } else {
-      // this is a dir
-      await fs.promises.mkdir(filePath, { recursive: true })
     }
   }
 }
@@ -108,12 +103,4 @@ async function isValid ({ cid, bytes }) {
   }
   const hash = await hashfn.digest(bytes)
   return toHex(hash.digest) === toHex(cid.multihash.digest)
-}
-
-async function decode ({ cid, bytes }) {
-  const codec = codecs[cid.code]
-  if (!codec) {
-    throw new Error(`Missing codec for ${cid.code}`)
-  }
-  return codec.decode(bytes)
 }
