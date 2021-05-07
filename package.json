@@ -9,12 +9,13 @@
   },
   "scripts": {
     "start": "node index.js",
-    "test": "say sorry"
+    "test": "say sorry",
+    "lint": "standard"
   },
   "author": "olizilla",
   "license": "MIT",
   "devDependencies": {
-    "typescript": "^4.2.4"
+    "standard": "^16.0.3"
   },
   "dependencies": {
     "@ipld/car": "^1.0.1",
@@ -24,7 +25,6 @@
     "it-pipe": "^1.1.0",
     "meow": "^10.0.0",
     "multiformats": "^7.0.0",
-    "stream-to-it": "^0.2.3",
-    "streaming-iterables": "^5.0.4"
+    "stream-to-it": "^0.2.3"
   }
 }
