@@ -22,6 +22,6 @@ jobs:
         key: ${{ matrix.node-version }}-${{ runner.OS }}-build-${{ hashFiles('package.json') }}
     - name: Build
       if: steps.cache-modules.outputs.cache-hit != 'true'
-      run: npm ci
+      run: npm install
     - name: Test
       run: npm test
