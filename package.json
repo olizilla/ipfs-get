@@ -1,20 +1,21 @@
 {
   "name": "ipfs-get",
-  "description": "_Get and verify a file by CID from an IPFS gateway over http._",
+  "description": "Get and verify a file by CID from an IPFS gateway over http.",
   "version": "0.0.0",
   "type": "module",
   "main": "index.js",
   "bin": {
-    "ipfs-get": "index.js"
+    "ipfs-get": "cli.js"
   },
   "scripts": {
     "start": "node index.js",
-    "test": "say sorry",
+    "test": "ava",
     "lint": "standard"
   },
   "author": "olizilla",
   "license": "MIT",
   "devDependencies": {
+    "ava": "^3.15.0",
     "standard": "^16.0.3"
   },
   "dependencies": {

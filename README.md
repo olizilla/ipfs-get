@@ -9,7 +9,7 @@ $ ipfs-get bafkreigh2akiscaildcqabsyg3dfr6chu3fgpregiymsck7e7aqa4s52zy
 ✅ Wrote ./bafkreigh2akiscaildcqabsyg3dfr6chu3fgpregiymsck7e7aqa4s52zy
 ```
 
-A thin wrapper over [@ipld/car]() and [unix-fs-exporter](https://github.com/ipfs/js-ipfs-unixfs/tree/master/packages/ipfs-unixfs-exporter). It fetches the data by from the IPFS gateway api as a .car file, extacts the cids and blocks, verifying them as it goes, and writes the reassembled data to disk.
+A thin wrapper over [@ipld/car](https://github.com/ipld/js-car) and [unix-fs-exporter](https://github.com/ipfs/js-ipfs-unixfs/tree/master/packages/ipfs-unixfs-exporter). It fetches the data by from the IPFS gateway api as a .car file, extacts the cids and blocks, verifying them as it goes, and writes the reassembled data to disk.
 
 ⚠️ **This is a proof-of-concept and should not be consumed without consulting your doctor first.**
 

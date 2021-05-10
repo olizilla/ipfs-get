@@ -1,6 +1,4 @@
-#!/usr/bin/env node
 import fs from 'fs'
-import meow from 'meow'
 import fetch from 'isomorphic-unfetch'
 import { bytes } from 'multiformats'
 import { sha256 } from 'multiformats/hashes/sha2'
@@ -15,59 +13,31 @@ const hashes = {
   [sha256.code]: sha256
 }
 
-const options = {
-  importMeta: import.meta,
-  flags: {
-    gateway: {
-      type: 'string',
-      alias: 'g',
-      default: 'http://127.0.0.1:5001'
-    },
-    output: {
-      type: 'string',
-      alias: 'o'
-    }
-  }
-}
-
-const cli = meow(`
-  Usage
-  $ ipfs-get <cid>
-`, options)
-
-ipfsGet({
-  cid: cli.input[0],
-  gateway: new URL(cli.flags.gateway),
-  output: cli.flags.output
-})
-
-async function ipfsGet ({ cid, gateway, output }) {
+export async function ipfsGet ({ cid, gateway, output }) {
   console.log(`📡 Fetching .car file from ${gateway}`)
   const carStream = await fetchCar(cid, gateway)
   const carReader = await CarReader.fromIterable(carStream)
+  const { blockCount, filename } = await extractCar({ cid, carReader, output })
+  console.log(`🔐 Verified ${blockCount}/${blockCount} block${blockCount === 1 ? '' : 's'}`)
+  console.log(`✅ Wrote ${filename}`)
+}
 
-  let count = 0
+export async function extractCar ({ cid, carReader, output }) {
+  let blockCount = 0
   const verifyingBlockService = {
     get: async (cid) => {
       const res = await carReader.get(cid)
       if (!isValid(res)) {
         throw new Error(`Bad block. Hash does not match CID ${cid}`)
       }
-      count++
+      blockCount++
       return res
     }
   }
-
-  await extractCar({ cid, blockService: verifyingBlockService, output })
-  console.log(`🔐 Verified ${count}/${count} block${count === 1 ? '' : 's'}`)
-  console.log(`✅ Wrote ${output || cid}`)
-}
-
-async function extractCar ({ cid, blockService, output }) {
   // magic extracted from js-ipfs:
   // https://github.com/ipfs/js-ipfs/blob/46618c795bf5363ba3186645640fb81349231db7/packages/ipfs-core/src/components/get.js#L20
   // https://github.com/ipfs/js-ipfs/blob/46618c795bf5363ba3186645640fb81349231db7/packages/ipfs-cli/src/commands/get.js#L56-L66
-  for await (const file of exporter.recursive(cid, blockService, { /* options */ })) {
+  for await (const file of exporter.recursive(cid, verifyingBlockService, { /* options */ })) {
     let filePath = file.path
     // output overrides the first part of the path.
     if (output) {
@@ -75,7 +45,7 @@ async function extractCar ({ cid, blockService, output }) {
       parts[0] = output
       filePath = parts.join('/')
     }
-    console.log(filePath, file)
+
     if (file.type === 'directory') {
       await fs.promises.mkdir(filePath, { recursive: true })
     } else {
@@ -85,6 +55,8 @@ async function extractCar ({ cid, blockService, output }) {
       )
     }
   }
+
+  return { blockCount, filename: output || cid }
 }
 
 async function fetchCar (cid, gateway) {
