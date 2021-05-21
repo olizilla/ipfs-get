@@ -1,7 +1,7 @@
 {
   "name": "ipfs-get",
   "description": "Get and verify a file by CID from an IPFS gateway over http.",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "main": "index.js",
   "bin": {
