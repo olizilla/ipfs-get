@@ -1,12 +1,14 @@
 # ipfs-get 📡✨[⬢](https://ipfs.io/)
 
-> Get and verify a file by CID from an IPFS gateway over http.
+> Get and *verify* a file by CID from an IPFS gateway over http.
 
 ```console
-$ ipfs-get bafkreigh2akiscaildcqabsyg3dfr6chu3fgpregiymsck7e7aqa4s52zy
-📡 Fetching .car file from https://ipfs.io
-🔐 Verified 3/3 blocks
-✅ Wrote ./bafkreigh2akiscaildcqabsyg3dfr6chu3fgpregiymsck7e7aqa4s52zy
+$ ipfs-get bafybeidd2gyhagleh47qeg77xqndy2qy3yzn4vkxmk775bg2t5lpuy7pcu/youareanonsense.jpg
+📡 Resolving CID from https://ipfs.io/
+🎯 bafkreiaqv66m5nd6mwgkk7h5lwqnjzj54s4f7knmnrjhb7ylzqfg2vdo54
+📡 Fetching .car file from https://ipfs.io/
+🔐 Verified 1/1 block
+✅ Wrote youareanonsense.jpg
 ```
 
 A thin wrapper over [@ipld/car](https://github.com/ipld/js-car) and [unix-fs-exporter](https://github.com/ipfs/js-ipfs-unixfs/tree/master/packages/ipfs-unixfs-exporter). It fetches the content by CID over HTTP from the IPFS gateway as a [Content-Addressed Archive](https://github.com/ipld/specs/blob/master/block-layer/content-addressable-archives.md) (CAR), extacts the cids and blocks, verifying them as it goes, and writes the files to disk.
@@ -22,8 +24,11 @@ By using car files, the CIDs for the blocks travel with the data, so `ipfs-get` 
 Install `ipfs-get` globally with `npm i -g ipfs-get` or run it via npx `npx ipfs-get <cid>`
 
 ```sh
-# fetch and verify a file by cid from you local gateway
+# fetch and verify a file by cid from ipfs.io
 ipfs-get bafkreigh2akiscaildcqabsyg3dfr6chu3fgpregiymsck7e7aqa4s52zy
+
+# resolve, fetch and verify a dnslink
+ipfs-get /ipns/ipfs.io
 
 # try it out with a local gateway (using go-ipfs v0.9.0)
 ipfs-get bafkreigh2akiscaildcqabsyg3dfr6chu3fgpregiymsck7e7aqa4s52zy --gateway http://127.0.0.1:5001
