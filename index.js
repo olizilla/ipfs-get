@@ -1,4 +1,5 @@
 import fs from 'fs'
+import path from 'path'
 import fetch from 'isomorphic-unfetch'
 import { bytes } from 'multiformats'
 import { sha256 } from 'multiformats/hashes/sha2'
@@ -13,8 +14,21 @@ const hashes = {
   [sha256.code]: sha256
 }
 
-export async function ipfsGet ({ cid, gateway, output }) {
+export async function ipfsGet ({ ipfsPath, gateway, output, quiet }) {
+  console.log = quiet ? () => {} : console.log
   const gatewayUrl = toUrl(gateway)
+  let cid = ipfsPath
+  if (ipfsPath.startsWith('/ipfs/')) {
+    cid = ipfsPath.substring('/ipfs/'.length)
+  }
+  if (cid.match('/')) {
+    // looks pathish! resolve!
+    console.log(`📡 Resolving CID from ${gatewayUrl}`)
+    cid = await resolveIpfsAddress(ipfsPath, gatewayUrl)
+    console.log(`🎯 ${cid}`)
+    // use the last chunk of the path as the output if not set
+    output = output || path.basename(ipfsPath)
+  }
   console.log(`📡 Fetching .car file from ${gatewayUrl}`)
   const carStream = await fetchCar(cid, gatewayUrl)
   const carReader = await CarReader.fromIterable(carStream)
@@ -67,6 +81,24 @@ async function fetchCar (cid, gateway) {
     throw new Error(`${res.status} ${res.statusText} ${url}`)
   }
   return res.body
+}
+
+async function resolveIpfsAddress (ipfsPath, gateway) {
+  // $ curl -X POST "http://127.0.0.1:5001/api/v0/resolve?arg=bafybeidd2gyhagleh47qeg77xqndy2qy3yzn4vkxmk775bg2t5lpuy7pcu/dr-is-tired.jpg"                                     11:45:26
+  // {"Path":"/ipfs/bafkreiabltrd5zm73pvi7plq25pef3hm7jxhbi3kv4hapegrkfpkqtkbme"}
+  const url = `${gateway}api/v0/resolve?arg=${ipfsPath}`
+  const res = await fetch(url, { method: 'POST' })
+  if (res.status > 400) {
+    throw new Error(`${res.status} ${res.statusText} ${url}`)
+  }
+  const body = await res.json()
+  if (!body.Path) {
+    throw new Error(`Unexpected response from resolve ${JSON.stringify(body)}`)
+  }
+  if (!body.Path.startsWith('/ipfs/')) {
+    throw new Error(`Expected ${ipfsPath} to resolve to a CID but found ${body.Path}`)
+  }
+  return body.Path.substring('/ipfs/'.length)
 }
 
 async function isValid ({ cid, bytes }) {
