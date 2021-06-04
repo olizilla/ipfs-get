@@ -14,8 +14,9 @@ const hashes = {
 }
 
 export async function ipfsGet ({ cid, gateway, output }) {
-  console.log(`📡 Fetching .car file from ${gateway}`)
-  const carStream = await fetchCar(cid, gateway)
+  const gatewayUrl = toUrl(gateway)
+  console.log(`📡 Fetching .car file from ${gatewayUrl}`)
+  const carStream = await fetchCar(cid, gatewayUrl)
   const carReader = await CarReader.fromIterable(carStream)
   const { blockCount, filename } = await extractCar({ cid, carReader, output })
   console.log(`🔐 Verified ${blockCount}/${blockCount} block${blockCount === 1 ? '' : 's'}`)
@@ -75,4 +76,12 @@ async function isValid ({ cid, bytes }) {
   }
   const hash = await hashfn.digest(bytes)
   return toHex(hash.digest) === toHex(cid.multihash.digest)
+}
+
+function toUrl (str) {
+  if (!str.match('://')) {
+    const scheme = ['localhost', '127.0.0.1'].includes(str) ? 'http' : 'https'
+    return toUrl(`${scheme}://${str}`)
+  }
+  return new URL(str)
 }
