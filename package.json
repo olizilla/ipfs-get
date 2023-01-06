@@ -16,7 +16,7 @@
   "author": "olizilla",
   "license": "MIT",
   "dependencies": {
-    "@ipld/car": "^1.0.1",
+    "@ipld/car": "^5.0.1",
     "ipfs-unixfs-exporter": "9.0.2",
     "isomorphic-unfetch": "^3.1.0",
     "it-pipe": "^1.1.0",

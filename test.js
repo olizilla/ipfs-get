@@ -3,7 +3,7 @@ import { createReadStream } from 'fs'
 import fs from 'fs/promises'
 import test from 'ava'
 import { extractCar } from './index.js'
-import CarIndexedReader from '@ipld/car/indexed-reader'
+import { CarIndexedReader } from '@ipld/car/indexed-reader'
 import { importer } from 'ipfs-unixfs-importer'
 
 test('extract single raw unix-fs block', async t => {
