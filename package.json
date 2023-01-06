@@ -17,7 +17,7 @@
   "license": "MIT",
   "dependencies": {
     "@ipld/car": "^1.0.1",
-    "ipfs-unixfs-exporter": "https://gitpkg.now.sh/ipfs/js-ipfs-unixfs/packages/ipfs-unixfs-exporter?js-dag-pb",
+    "ipfs-unixfs-exporter": "9.0.2",
     "isomorphic-unfetch": "^3.1.0",
     "it-pipe": "^1.1.0",
     "meow": "^10.0.0",
@@ -26,7 +26,7 @@
   },
   "devDependencies": {
     "ava": "^3.15.0",
-    "ipfs-unixfs-importer": "https://gitpkg.now.sh/ipfs/js-ipfs-unixfs/packages/ipfs-unixfs-importer?js-dag-pb",
+    "ipfs-unixfs-importer": "11.0.1",
     "standard": "^16.0.3"
   }
 }

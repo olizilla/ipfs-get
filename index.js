@@ -4,7 +4,7 @@ import fetch from 'isomorphic-unfetch'
 import { bytes } from 'multiformats'
 import { sha256 } from 'multiformats/hashes/sha2'
 import { CarReader } from '@ipld/car'
-import exporter from 'ipfs-unixfs-exporter'
+import { recursive } from 'ipfs-unixfs-exporter'
 import toIterable from 'stream-to-it'
 import { pipe } from 'it-pipe'
 
@@ -22,7 +22,7 @@ export async function ipfsGet ({ ipfsPath, gateway, output, quiet }) {
     cid = ipfsPath.substring('/ipfs/'.length)
   }
   if (cid.match('/')) {
-    // looks pathish! resolve!
+    // looks pathish, i.e CID/path! resolve to get the CID for the file in the path
     console.log(`📡 Resolving CID from ${gatewayUrl}`)
     cid = await resolveIpfsAddress(ipfsPath, gatewayUrl)
     console.log(`🎯 ${cid}`)
@@ -46,13 +46,13 @@ export async function extractCar ({ cid, carReader, output }) {
         throw new Error(`Bad block. Hash does not match CID ${cid}`)
       }
       blockCount++
-      return res
-    }
+      return res.bytes
+    },
   }
   // magic extracted from js-ipfs:
   // https://github.com/ipfs/js-ipfs/blob/46618c795bf5363ba3186645640fb81349231db7/packages/ipfs-core/src/components/get.js#L20
   // https://github.com/ipfs/js-ipfs/blob/46618c795bf5363ba3186645640fb81349231db7/packages/ipfs-cli/src/commands/get.js#L56-L66
-  for await (const file of exporter.recursive(cid, verifyingBlockService, { /* options */ })) {
+  for await (const file of recursive(cid, verifyingBlockService, { /* options */ })) {
     let filePath = file.path
     // output overrides the first part of the path.
     if (output) {
@@ -74,9 +74,14 @@ export async function extractCar ({ cid, carReader, output }) {
   return { blockCount, filename: output || cid }
 }
 
-async function fetchCar (cid, gateway) {
-  const url = `${gateway}api/v0/dag/export?arg=${cid}`
-  const res = await fetch(url, { method: 'POST' })
+async function fetchCar(cid, gateway) {
+  const url = `${gateway}/ipfs/${cid}`
+  const res = await fetch(url, {
+    method: 'GET',
+    headers: {
+      Accept: 'application/vnd.ipld.car',
+    },
+  })
   if (res.status > 400) {
     throw new Error(`${res.status} ${res.statusText} ${url}`)
   }
