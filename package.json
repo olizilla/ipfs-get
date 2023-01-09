@@ -3,12 +3,14 @@
   "description": "Get and verify a file by CID from an IPFS gateway over http.",
   "version": "2.1.0",
   "type": "module",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "bin": {
     "ipfs-get": "cli.js"
   },
   "files": [],
   "scripts": {
+    "build": "tsc",
     "start": "node index.js",
     "test": "ava -v",
     "lint": "standard"
@@ -16,17 +18,27 @@
   "author": "olizilla",
   "license": "MIT",
   "dependencies": {
-    "@ipld/car": "^5.0.1",
+    "@ipld/car": "^5.0.2",
     "ipfs-unixfs-exporter": "9.0.2",
     "isomorphic-unfetch": "^3.1.0",
     "it-pipe": "^1.1.0",
     "meow": "^10.0.0",
-    "multiformats": "^7.0.0",
-    "stream-to-it": "^0.2.3"
+    "multiformats": "^11.0.0",
+    "stream-to-it": "^0.2.4"
   },
   "devDependencies": {
-    "ava": "^3.15.0",
+    "ava": "^5.1.0",
     "ipfs-unixfs-importer": "11.0.1",
-    "standard": "^16.0.3"
+    "standard": "^16.0.3",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.9.4"
+  },
+  "ava": {
+    "extensions": {
+      "ts": "module"
+    },
+    "nodeArguments": [
+      "--loader=ts-node/esm"
+    ]
   }
 }
